@@ -3,411 +3,458 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Tank & Flow Monitoring - Realtime Dashboard</title>
+    <title>Smart Tank & Flow Monitoring - Premium Dashboard</title>
     <!-- Google Fonts & Font Awesome Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js Library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         :root {
-            --primary: #0284c7;
-            --primary-dark: #0369a1;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-sub: #64748b;
+            --bg-main: #f0f4f9;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --text-title: #0f172a;
+            --text-body: #475569;
+            --text-muted: #94a3b8;
+            
+            --accent-blue: #0284c7;
+            --accent-cyan: #06b6d4;
+            --accent-indigo: #6366f1;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-purple: #8b5cf6;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Prompt', sans-serif;
+            font-family: 'Prompt', 'Plus Jakarta Sans', sans-serif;
         }
 
         body {
-            background-color: var(--bg);
-            color: var(--text-main);
-            padding: 20px;
+            background: linear-gradient(135deg, #e0f2fe 0%, #f0f4f9 50%, #e0e7ff 100%);
+            background-attachment: fixed;
+            color: var(--text-title);
+            padding: 30px 20px;
             min-height: 100vh;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1280px;
             margin: 0 auto;
         }
 
-        /* Header Bar */
+        /* Top Header */
         header {
-            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-            color: white;
-            padding: 24px 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.3);
-            margin-bottom: 25px;
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            padding: 24px 32px;
+            border-radius: 24px;
+            box-shadow: 0 20px 40px -15px rgba(0, 100, 200, 0.08);
+            margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 15px;
+            gap: 20px;
         }
 
-        .header-title {
+        .header-brand {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 18px;
         }
 
-        .header-title i {
-            font-size: 32px;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 12px;
-            border-radius: 14px;
+        .brand-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            color: white;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            box-shadow: 0 10px 20px -5px rgba(2, 132, 199, 0.4);
         }
 
-        .header-title h1 {
+        .brand-text h1 {
             font-size: 24px;
-            font-weight: 600;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0f172a 0%, #0369a1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .header-title p {
+        .brand-text p {
             font-size: 13px;
-            opacity: 0.9;
-            font-weight: 300;
+            color: var(--text-body);
+            font-weight: 400;
         }
 
-        .status-badge {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(5px);
-            padding: 8px 16px;
-            border-radius: 30px;
+        .live-status {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #065f46;
+            padding: 10px 20px;
+            border-radius: 50px;
             font-size: 13px;
+            font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            gap: 10px;
         }
 
         .pulse-dot {
             width: 10px;
             height: 10px;
-            background-color: #4ade80;
+            background-color: var(--accent-green);
             border-radius: 50%;
-            box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
-            animation: pulse 1.5s infinite;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse-green 1.8s infinite;
         }
 
-        @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(74, 222, 128, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+        @keyframes pulse-green {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
-        /* Grid Layout */
+        /* Metrics Grid Layout */
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            margin-bottom: 25px;
+            gap: 22px;
+            margin-bottom: 30px;
         }
 
-        /* Card Component */
+        /* Glass Cards */
         .card {
             background: var(--card-bg);
-            border-radius: 18px;
-            padding: 22px;
-            box-shadow: 0 4px 15px -2px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 22px;
+            padding: 24px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
             overflow: hidden;
-            border: 1px solid #e2e8f0;
         }
 
         .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: translateY(-6px);
+            box-shadow: 0 20px 35px -10px rgba(2, 132, 199, 0.12);
+            border-color: rgba(2, 132, 199, 0.3);
         }
 
-        .card-header {
+        .card-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 18px;
         }
 
         .card-title {
             font-size: 14px;
-            color: var(--text-sub);
+            color: var(--text-body);
             font-weight: 500;
         }
 
-        .card-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 12px;
+        .icon-box {
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
         }
 
-        .card-body {
+        /* Theme Accents */
+        .theme-blue { background: #e0f2fe; color: var(--accent-blue); }
+        .theme-cyan { background: #ecfeff; color: var(--accent-cyan); }
+        .theme-indigo { background: #e0e7ff; color: var(--accent-indigo); }
+        .theme-purple { background: #f3e8ff; color: var(--accent-purple); }
+        .theme-green { background: #dcfce7; color: var(--accent-green); }
+        .theme-amber { background: #fef3c7; color: var(--accent-amber); }
+
+        .card-val {
             display: flex;
             align-items: baseline;
             gap: 8px;
         }
 
         .value {
-            font-size: 32px;
+            font-size: 36px;
             font-weight: 700;
-            color: var(--text-main);
+            letter-spacing: -1px;
+            color: var(--text-title);
         }
 
         .unit {
-            font-size: 14px;
-            color: var(--text-sub);
+            font-size: 15px;
+            color: var(--text-muted);
             font-weight: 500;
         }
 
-        /* Progress Bar */
-        .progress-bar-bg {
-            width: 100%;
+        /* Custom Modern Progress Bar */
+        .progress-container {
+            margin-top: 18px;
+            background: #e2e8f0;
             height: 8px;
-            background-color: #e2e8f0;
             border-radius: 10px;
-            margin-top: 15px;
             overflow: hidden;
         }
 
-        .progress-bar-fill {
+        .progress-bar {
             height: 100%;
             border-radius: 10px;
             width: 0%;
-            transition: width 0.5s ease-in-out;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        .icon-blue { background: #e0f2fe; color: #0284c7; }
-        .icon-cyan { background: #ecfeff; color: #0891b2; }
-        .icon-indigo { background: #e0e7ff; color: #4338ca; }
-        .icon-sky { background: #f0f9ff; color: #0369a1; }
-        .icon-green { background: #dcfce7; color: #15803d; }
-        .icon-amber { background: #fef3c7; color: #b45309; }
 
         /* Chart Section */
         .chart-card {
-            background: white;
-            border-radius: 18px;
-            padding: 25px;
-            box-shadow: 0 4px 15px -2px rgba(0, 0, 0, 0.05);
-            border: 1px solid #e2e8f0;
-            margin-bottom: 25px;
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04);
+            margin-bottom: 30px;
         }
 
         .chart-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 22px;
         }
 
         .chart-title {
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 600;
-            color: var(--text-main);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
-        .chart-container {
+        .chart-wrapper {
             position: relative;
-            height: 320px;
+            height: 340px;
             width: 100%;
         }
 
-        /* Insight Box */
-        .insight-box {
-            background: white;
-            border-radius: 18px;
-            padding: 20px 25px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 4px 15px -2px rgba(0, 0, 0, 0.05);
+        /* AI Insight Banner */
+        .insight-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+            border: 1px solid rgba(2, 132, 199, 0.2);
+            border-radius: 22px;
+            padding: 22px 28px;
             display: flex;
             align-items: center;
             gap: 20px;
-            flex-wrap: wrap;
+            box-shadow: 0 10px 25px -10px rgba(2, 132, 199, 0.08);
+            margin-bottom: 30px;
         }
 
         .insight-icon {
-            font-size: 28px;
-            color: #0284c7;
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
             background: #e0f2fe;
-            padding: 15px;
-            border-radius: 50%;
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
         }
 
-        .insight-content h3 {
+        .insight-info h3 {
             font-size: 16px;
             font-weight: 600;
+            color: var(--text-title);
             margin-bottom: 4px;
         }
 
-        .insight-content p {
-            font-size: 13px;
-            color: var(--text-sub);
+        .insight-info p {
+            font-size: 14px;
+            color: var(--text-body);
         }
 
+        /* Footer */
         footer {
             text-align: center;
-            margin-top: 25px;
-            color: var(--text-sub);
+            color: var(--text-muted);
             font-size: 13px;
+            padding-bottom: 10px;
+        }
+
+        footer strong {
+            color: var(--text-body);
+        }
+
+        @media (max-width: 768px) {
+            header { flex-direction: column; align-items: flex-start; }
+            .value { font-size: 30px; }
+            .insight-card { flex-direction: column; align-items: flex-start; }
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <!-- Header -->
+        <!-- Header Bar -->
         <header>
-            <div class="header-title">
-                <i class="fa-solid fa-faucet-drip"></i>
-                <div>
+            <div class="header-brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-droplet"></i>
+                </div>
+                <div class="brand-text">
                     <h1>Smart Tank & Flow Monitoring</h1>
                     <p>ระบบตรวจวัดระดับน้ำและปริมาณการไหลอัจฉริยะ (iot-126)</p>
                 </div>
             </div>
-            <div class="status-badge">
+            <div class="live-status">
                 <div class="pulse-dot"></div>
-                <span id="sync-status">Realtime Syncing...</span>
+                <span id="sync-status">ระบบเชื่อมต่อ Realtime</span>
             </div>
         </header>
 
-        <!-- Dashboard Cards Grid (6 Columns) -->
+        <!-- Metrics Cards (6 Grid) -->
         <div class="grid">
             <!-- 1. Water Level -->
             <div class="card">
-                <div class="card-header">
-                    <span class="card-title">ระดับน้ำในถัง (Water Level)</span>
-                    <div class="card-icon icon-blue"><i class="fa-solid fa-glass-water"></i></div>
+                <div class="card-top">
+                    <span class="card-title">ระดับน้ำในถัง</span>
+                    <div class="icon-box theme-blue"><i class="fa-solid fa-water"></i></div>
                 </div>
-                <div class="card-body">
+                <div class="card-val">
                     <span class="value" id="level">--</span>
                     <span class="unit">%</span>
                 </div>
-                <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" id="level-bar" style="background-color: #0284c7;"></div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="level-bar" style="background: linear-gradient(90deg, #38bdf8, #0284c7);"></div>
                 </div>
             </div>
 
             <!-- 2. Water Volume -->
             <div class="card">
-                <div class="card-header">
-                    <span class="card-title">ปริมาณน้ำคงเหลือ (Volume)</span>
-                    <div class="card-icon icon-cyan"><i class="fa-solid fa-fill-drip"></i></div>
+                <div class="card-top">
+                    <span class="card-title">ปริมาณน้ำคงเหลือ</span>
+                    <div class="icon-box theme-cyan"><i class="fa-solid fa-fill-drip"></i></div>
                 </div>
-                <div class="card-body">
+                <div class="card-val">
                     <span class="value" id="volume">--</span>
                     <span class="unit">ลิตร (L)</span>
                 </div>
-                <p style="font-size: 12px; color: var(--text-sub); margin-top: 12px;">ความจุถังรองรับสูงสุด 1,000 ลิตร</p>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 14px;">ความจุสูงสุด 1,000 ลิตร</p>
             </div>
 
             <!-- 3. Flow Rate -->
             <div class="card">
-                <div class="card-header">
-                    <span class="card-title">อัตราการไหล (Flow Rate)</span>
-                    <div class="card-icon icon-indigo"><i class="fa-solid fa-water"></i></div>
+                <div class="card-top">
+                    <span class="card-title">อัตราการไหล</span>
+                    <div class="icon-box theme-indigo"><i class="fa-solid fa-gauge"></i></div>
                 </div>
-                <div class="card-body">
+                <div class="card-val">
                     <span class="value" id="flow">--</span>
-                    <span class="unit">ลิตร/นาที</span>
+                    <span class="unit">L/min</span>
                 </div>
-                <p style="font-size: 12px; color: var(--text-sub); margin-top: 12px;">ความเร็วการจ่ายน้ำเข้า/ออกจากถัง</p>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 14px;">ความเร็วอัตราไหลเข้า-ออก</p>
             </div>
 
             <!-- 4. Water Pressure -->
             <div class="card">
-                <div class="card-header">
-                    <span class="card-title">แรงดันน้ำในท่อ (Pressure)</span>
-                    <div class="card-icon icon-sky"><i class="fa-solid fa-gauge-high"></i></div>
+                <div class="card-top">
+                    <span class="card-title">แรงดันน้ำในท่อ</span>
+                    <div class="icon-box theme-purple"><i class="fa-solid fa-compress"></i></div>
                 </div>
-                <div class="card-body">
+                <div class="card-val">
                     <span class="value" id="press">--</span>
-                    <span class="unit">บาร์ (bar)</span>
+                    <span class="unit">bar</span>
                 </div>
-                <p style="font-size: 12px; color: var(--text-sub); margin-top: 12px;">แรงดันมาตรฐาน: 1.5 - 3.0 bar</p>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 14px;">เกณฑ์ปกติ 1.5 - 3.0 bar</p>
             </div>
 
             <!-- 5. Pump Status -->
             <div class="card">
-                <div class="card-header">
-                    <span class="card-title">สถานะปั๊มน้ำ (Pump Status)</span>
-                    <div class="card-icon icon-green"><i class="fa-solid fa-power-off"></i></div>
+                <div class="card-top">
+                    <span class="card-title">สถานะปั๊มน้ำ</span>
+                    <div class="icon-box theme-green"><i class="fa-solid fa-power-off"></i></div>
                 </div>
-                <div class="card-body">
-                    <span class="value" id="pump_status" style="font-size: 24px;">--</span>
+                <div class="card-val">
+                    <span class="value" id="pump_status" style="font-size: 26px; color: var(--accent-green);">--</span>
                 </div>
-                <p style="font-size: 12px; color: var(--text-sub); margin-top: 12px;">สถานะการทำงานของปั๊มเติมน้ำ</p>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 14px;">การสั่งการจากระบบควบคุม</p>
             </div>
 
-            <!-- 6. Sensor Battery -->
+            <!-- 6. Node Battery -->
             <div class="card">
-                <div class="card-header">
-                    <span class="card-title">แบตเตอรี่โหนด (Battery)</span>
-                    <div class="card-icon icon-amber"><i class="fa-solid fa-battery-three-quarters"></i></div>
+                <div class="card-top">
+                    <span class="card-title">แบตเตอรี่โหนด</span>
+                    <div class="icon-box theme-amber"><i class="fa-solid fa-bolt"></i></div>
                 </div>
-                <div class="card-body">
+                <div class="card-val">
                     <span class="value" id="battery">--</span>
                     <span class="unit">%</span>
                 </div>
-                <div class="progress-bar-bg">
-                    <div class="progress-bar-fill" id="battery-bar" style="background-color: #f59e0b;"></div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="battery-bar" style="background: linear-gradient(90deg, #fbbf24, #f59e0b);"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Realtime Chart Section -->
+        <!-- Interactive Chart Section -->
         <div class="chart-card">
             <div class="chart-header">
                 <div class="chart-title">
-                    <i class="fa-solid fa-chart-line" style="color: #0284c7;"></i>
-                    <span>กราฟแนวโน้มระดับน้ำและอัตราการไหลย้อนหลัง (Realtime History)</span>
+                    <i class="fa-solid fa-chart-area" style="color: var(--accent-blue);"></i>
+                    <span>กราฟวิเคราะห์แนวโน้ม Real-time (ระดับน้ำ & อัตราไหล)</span>
                 </div>
             </div>
-            <div class="chart-container">
-                <canvas id="historyChart"></canvas>
+            <div class="chart-wrapper">
+                <canvas id="realtimeChart"></canvas>
             </div>
         </div>
 
-        <!-- Smart Insight -->
-        <div class="insight-box">
+        <!-- Smart Insight Banner -->
+        <div class="insight-card">
             <div class="insight-icon">
-                <i class="fa-solid fa-lightbulb"></i>
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
             </div>
-            <div class="insight-content">
-                <h3>ระบบวิเคราะห์อัตโนมัติ (Smart Water Analytics)</h3>
-                <p id="system-recommendation">กำลังประมวลผลข้อมูลการใช้น้ำจริงจากระบบ Firebase...</p>
+            <div class="insight-info">
+                <h3>ระบบวิเคราะห์สภาพการใช้น้ำ (Smart Water Analytics)</h3>
+                <p id="system-recommendation">กำลังเชื่อมต่อฐานข้อมูลเพื่อวิเคราะห์ผล...</p>
             </div>
         </div>
 
         <!-- Footer -->
         <footer>
-            อัปเดตข้อมูลล่าสุดจาก ESP32 เมื่อ: <span id="time" style="font-weight: 600; color: var(--text-main);">--</span>
+            อัปเดตข้อมูลล่าสุดเมื่อ: <strong id="time">--</strong>
         </footer>
     </div>
 
-    <!-- Script Chart & Realtime Sync -->
+    <!-- Script Logic -->
     <script>
         const BASE_URL = "https://iot-000-7912d-default-rtdb.asia-southeast1.firebasedatabase.app/iot-126";
         const LATEST_URL = `${BASE_URL}/latest.json`;
-        const HISTORY_URL = `${BASE_URL}/history.json?orderBy="$key"&limitToLast=10`; // ดึง 10 ข้อมูลล่าสุด
+        const HISTORY_URL = `${BASE_URL}/history.json?orderBy="$key"&limitToLast=10`;
 
-        // Setup Chart.js
-        const ctx = document.getElementById('historyChart').getContext('2d');
-        const historyChart = new Chart(ctx, {
+        // Chart.js Configuration with Gradient
+        const ctx = document.getElementById('realtimeChart').getContext('2d');
+        
+        const gradientWater = ctx.createLinearGradient(0, 0, 0, 300);
+        gradientWater.addColorStop(0, 'rgba(2, 132, 199, 0.35)');
+        gradientWater.addColorStop(1, 'rgba(2, 132, 199, 0.0)');
+
+        const realtimeChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: [],
@@ -416,18 +463,24 @@
                         label: 'ระดับน้ำ (%)',
                         data: [],
                         borderColor: '#0284c7',
-                        backgroundColor: 'rgba(2, 132, 199, 0.1)',
+                        borderWidth: 3,
+                        backgroundColor: gradientWater,
                         fill: true,
                         tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#0284c7',
                         yAxisID: 'y'
                     },
                     {
                         label: 'อัตราการไหล (L/min)',
                         data: [],
-                        borderColor: '#4338ca',
+                        borderColor: '#6366f1',
+                        borderWidth: 2,
+                        borderDash: [4, 4],
                         backgroundColor: 'transparent',
-                        borderDash: [5, 5],
+                        fill: false,
                         tension: 0.4,
+                        pointRadius: 3,
                         yAxisID: 'y1'
                     }
                 ]
@@ -435,7 +488,9 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: { position: 'top', labels: { font: { family: 'Prompt' } } }
+                },
                 scales: {
                     x: { grid: { display: false } },
                     y: {
@@ -449,19 +504,19 @@
                         type: 'linear',
                         display: true,
                         position: 'right',
-                        title: { display: true, text: 'อัตราการไหล (L/min)' },
+                        title: { display: true, text: 'อัตราไหล (L/min)' },
                         grid: { drawOnChartArea: false }
                     }
                 }
             }
         });
 
-        // Fetch Latest Data
-        async function fetchLatestData() {
+        // Fetch Data Functions
+        async function fetchLatest() {
             try {
-                const response = await fetch(LATEST_URL);
-                const data = await response.json();
-                if (data) {
+                const res = await fetch(LATEST_URL);
+                const data = await res.json();
+                if(data) {
                     document.getElementById("level").innerText = data.level ? data.level.toFixed(1) : "--";
                     document.getElementById("volume").innerText = data.volume ? data.volume.toFixed(0) : "--";
                     document.getElementById("flow").innerText = data.flow ? data.flow.toFixed(1) : "--";
@@ -472,64 +527,43 @@
                     document.getElementById("level-bar").style.width = `${Math.min(data.level || 0, 100)}%`;
                     document.getElementById("battery-bar").style.width = `${Math.min(data.battery || 0, 100)}%`;
 
-                    if (data.timestamp) {
+                    if(data.timestamp) {
                         const date = new Date(data.timestamp * 1000);
                         document.getElementById("time").innerText = date.toLocaleString("th-TH");
                     }
 
-                    // Smart Recommendation
-                    let recText = "";
-                    if (data.level < 20) {
-                        recText = "⚠️ ระดับน้ำในถังต่ำกว่า 20%! ระบบแนะนำให้เปิดปั๊มน้ำเติมเข้าถัง";
-                    } else if (data.press > 3.5) {
-                        recText = "⚠️ ตรวจพบแรงดันน้ำสูงผิดปกติ โปรดตรวจสอบท่อจ่ายน้ำ";
-                    } else {
-                        recText = "✅ ระบบการจ่ายน้ำและระดับน้ำอยู่ในเกณฑ์ปกติ สมบูรณ์พร้อมใช้งาน";
-                    }
-                    document.getElementById("system-recommendation").innerText = recText;
+                    // Smart Advice
+                    let advice = "✅ ปริมาณน้ำและแรงดันในท่อจ่ายอยู่ในระดับปกติ";
+                    if(data.level < 20) advice = "🚨 คำเตือน: ระดับน้ำในถังต่ำมาก! ระบบแนะนำให้เปิดปั๊มเติมน้ำทันที";
+                    else if(data.press > 3.5) advice = "⚠️ คำเตือน: แรงดันน้ำสูงเกินมาตรฐาน โปรดตรวจสอบวาล์วจ่ายน้ำ";
+                    document.getElementById("system-recommendation").innerText = advice;
                 }
-            } catch (err) {
-                console.error("Latest Fetch Error:", err);
-            }
+            } catch(e) { console.error(e); }
         }
 
-        // Fetch History Data for Chart
-        async function fetchHistoryData() {
+        async function fetchHistory() {
             try {
-                const response = await fetch(HISTORY_URL);
-                const data = await response.json();
-                if (data) {
-                    const timeLabels = [];
-                    const levelData = [];
-                    const flowData = [];
-
-                    Object.values(data).forEach(item => {
-                        if (item.timestamp) {
-                            const timeStr = new Date(item.timestamp * 1000).toLocaleTimeString("th-TH", { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                            timeLabels.push(timeStr);
-                            levelData.push(item.level ? item.level.toFixed(1) : 0);
-                            flowData.push(item.flow ? item.flow.toFixed(1) : 0);
+                const res = await fetch(HISTORY_URL);
+                const data = await res.json();
+                if(data) {
+                    const times = [], levels = [], flows = [];
+                    Object.values(data).forEach(d => {
+                        if(d.timestamp) {
+                            times.push(new Date(d.timestamp * 1000).toLocaleTimeString("th-TH", {hour:'2-digit', minute:'2-digit', second:'2-digit'}));
+                            levels.push(d.level ? d.level.toFixed(1) : 0);
+                            flows.push(d.flow ? d.flow.toFixed(1) : 0);
                         }
                     });
-
-                    historyChart.data.labels = timeLabels;
-                    historyChart.data.datasets[0].data = levelData;
-                    historyChart.data.datasets[1].data = flowData;
-                    historyChart.update();
+                    realtimeChart.data.labels = times;
+                    realtimeChart.data.datasets[0].data = levels;
+                    realtimeChart.data.datasets[1].data = flows;
+                    realtimeChart.update();
                 }
-            } catch (err) {
-                console.error("History Fetch Error:", err);
-            }
+            } catch(e) { console.error(e); }
         }
 
-        // Loop Sync Every 3 Seconds
-        setInterval(() => {
-            fetchLatestData();
-            fetchHistoryData();
-        }, 3000);
-
-        fetchLatestData();
-        fetchHistoryData();
+        setInterval(() => { fetchLatest(); fetchHistory(); }, 3000);
+        fetchLatest(); fetchHistory();
     </script>
 </body>
 </html>
