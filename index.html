@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Tank & Flow Monitoring - Ultimate Dashboard</title>
+    <title>Smart Tank & Flow Monitoring - Ultimate Analytics Dashboard</title>
     <!-- Google Fonts & Font Awesome Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -305,7 +305,7 @@
             width: 100%;
         }
 
-        /* AI Insight Banner */
+        /* AI Insight Banner & Health Status Badge */
         .insight-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
@@ -331,16 +331,66 @@
             flex-shrink: 0;
         }
 
+        .insight-info {
+            flex: 1;
+        }
+
+        .insight-header-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+
         .insight-info h3 {
             font-size: 16px;
             font-weight: 600;
             color: var(--text-title);
-            margin-bottom: 4px;
+            margin-bottom: 0;
         }
 
         .insight-info p {
             font-size: 14px;
             color: var(--text-body);
+        }
+
+        /* Health Status Badges */
+        .badge {
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            animation: pulse-red 1.5s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
         /* Footer */
@@ -491,14 +541,21 @@
             </div>
         </div>
 
-        <!-- Smart Insight Banner -->
+        <!-- Smart Insight Banner with Health Status Badge -->
         <div class="insight-card">
             <div class="insight-icon">
                 <i class="fa-solid fa-wand-magic-sparkles"></i>
             </div>
             <div class="insight-info">
-                <h3>ระบบวิเคราะห์สภาพการใช้น้ำ (Smart Water Analytics)</h3>
-                <p id="system-recommendation">กำลังเชื่อมต่อฐานข้อมูลเพื่อวิเคราะห์ผล...</p>
+                <div class="insight-header-wrapper">
+                    <h3>ระบบวิเคราะห์สภาพการใช้น้ำ (Smart Water Analytics)</h3>
+                    <!-- Health Status Badge -->
+                    <span id="health-badge" class="badge badge-success">
+                        <i class="fa-solid fa-circle-check" id="badge-icon"></i>
+                        <span id="badge-text">Normal Status</span>
+                    </span>
+                </div>
+                <p id="system-recommendation">กำลังคำนวณและวิเคราะห์ข้อมูลระบบ...</p>
             </div>
         </div>
 
@@ -561,32 +618,80 @@
             }
         });
 
-        // 1. Fetch Latest Data
+        // 1. Fetch Latest Data & Advanced Analytics
         async function fetchLatest() {
             try {
                 const res = await fetch(LATEST_URL);
                 const data = await res.json();
                 if(data) {
-                    document.getElementById("level").innerText = data.level ? data.level.toFixed(1) : "--";
-                    document.getElementById("volume").innerText = data.volume ? data.volume.toFixed(0) : "--";
-                    document.getElementById("flow").innerText = data.flow ? data.flow.toFixed(1) : "--";
-                    document.getElementById("press").innerText = data.press ? data.press.toFixed(2) : "--";
-                    document.getElementById("battery").innerText = data.battery ? data.battery.toFixed(0) : "--";
-                    document.getElementById("pump_status").innerText = data.pump_status || "--";
+                    const level = data.level || 0;
+                    const volume = data.volume || 0;
+                    const flow = data.flow || 0;
+                    const press = data.press || 0;
+                    const battery = data.battery || 0;
+                    const pump = data.pump_status || "PUMP_OFF";
 
-                    document.getElementById("level-bar").style.width = `${Math.min(data.level || 0, 100)}%`;
-                    document.getElementById("battery-bar").style.width = `${Math.min(data.battery || 0, 100)}%`;
+                    document.getElementById("level").innerText = level.toFixed(1);
+                    document.getElementById("volume").innerText = volume.toFixed(0);
+                    document.getElementById("flow").innerText = flow.toFixed(1);
+                    document.getElementById("press").innerText = press.toFixed(2);
+                    document.getElementById("battery").innerText = battery.toFixed(0);
+                    document.getElementById("pump_status").innerText = pump;
+
+                    document.getElementById("level-bar").style.width = `${Math.min(level, 100)}%`;
+                    document.getElementById("battery-bar").style.width = `${Math.min(battery, 100)}%`;
 
                     if(data.timestamp) {
                         const date = new Date(data.timestamp * 1000);
                         document.getElementById("time").innerText = date.toLocaleString("th-TH");
                     }
 
-                    // Smart Analytics Advice
-                    let advice = "✅ ปริมาณน้ำและแรงดันในท่อจ่ายอยู่ในระดับปกติ";
-                    if(data.level < 20) advice = "🚨 คำเตือน: ระดับน้ำในถังต่ำมาก! ระบบแนะนำให้เปิดปั๊มเติมน้ำทันที";
-                    else if(data.press > 3.5) advice = "⚠️ คำเตือน: แรงดันน้ำสูงเกินมาตรฐาน โปรดตรวจสอบวาล์วจ่ายน้ำ";
-                    document.getElementById("system-recommendation").innerText = advice;
+                    // Advanced Analytics & Badge Handling
+                    const badge = document.getElementById("health-badge");
+                    const badgeIcon = document.getElementById("badge-icon");
+                    const badgeText = document.getElementById("badge-text");
+                    const recommendation = document.getElementById("system-recommendation");
+
+                    // 1.1 ตรวจพบรั่วซึม (ปั๊มปิด แต่น้ำไหล)
+                    if (pump === "PUMP_OFF" && flow > 0.5) {
+                        badge.className = "badge badge-danger";
+                        badgeIcon.className = "fa-solid fa-triangle-exclamation";
+                        badgeText.innerText = "Critical Alert";
+                        recommendation.innerHTML = "🚨 <strong>เตือนภัย:</strong> ตรวจพบการไหลของน้ำขณะปั๊มปิด! อาจมีจุดรั่วซึมในระบบท่อ";
+                    } 
+                    // 1.2 ระดับน้ำวิกฤต (< 20%)
+                    else if (level < 20) {
+                        badge.className = "badge badge-danger";
+                        badgeIcon.className = "fa-solid fa-circle-exclamation";
+                        badgeText.innerText = "Water Low";
+                        recommendation.innerHTML = `🚨 <strong>ระดับน้ำวิกฤต:</strong> คงเหลือเพียง ${level.toFixed(1)}% (${volume.toFixed(0)} ลิตร) ระบบแนะนำให้เริ่มเปิดปั๊มเติมน้ำทันที`;
+                    } 
+                    // 1.3 แรงดันสูงเกินเกณฑ์ (> 3.5 bar)
+                    else if (press > 3.5) {
+                        badge.className = "badge badge-warning";
+                        badgeIcon.className = "fa-solid fa-gauge-high";
+                        badgeText.innerText = "High Pressure";
+                        recommendation.innerHTML = `⚠️ <strong>แรงดันสูงผิดปกติ:</strong> แรงดันในท่ออยู่ที่ ${press.toFixed(2)} bar โปรดตรวจสอบวาล์วจ่ายน้ำ`;
+                    } 
+                    // 1.4 มีการใช้น้ำอยู่ (คำนวณระยะเวลาคงเหลือ)
+                    else if (flow > 0.1) {
+                        const totalMins = Math.floor(volume / flow);
+                        const hrs = Math.floor(totalMins / 60);
+                        const mins = totalMins % 60;
+                        const timeStr = hrs > 0 ? `${hrs} ชั่วโมง ${mins} นาที` : `${mins} นาที`;
+
+                        badge.className = "badge badge-success";
+                        badgeIcon.className = "fa-solid fa-clock";
+                        badgeText.innerText = "In Use";
+                        recommendation.innerHTML = `⏳ <strong>ประมาณการใช้น้ำ:</strong> ปัจจุบันใช้น้ำอัตรา ${flow.toFixed(1)} L/min คาดว่าน้ำในถังจะใช้ได้อีกประมาณ <strong>${timeStr}</strong>`;
+                    } 
+                    // 1.5 สถานะปกติ
+                    else {
+                        badge.className = "badge badge-success";
+                        badgeIcon.className = "fa-solid fa-circle-check";
+                        badgeText.innerText = "Normal Status";
+                        recommendation.innerHTML = `✅ <strong>ระบบสมบูรณ์:</strong> ระดับน้ำ ${level.toFixed(1)}% (${volume.toFixed(0)} ลิตร) ปริมาณน้ำและแรงดันอยู่ในระดับปกติพร้อมใช้งาน`;
+                    }
                 }
             } catch(e) { console.error(e); }
         }
