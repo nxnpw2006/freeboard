@@ -16,7 +16,7 @@
 </head>
 <body>
 
-    <h1>IoT Realtime Dashboard (iot-000)</h1>
+    <h1>IoT Realtime Dashboard (iot-126)</h1>
     
     <div class="grid">
         <div class="card"><h3>Temperature (°C)</h3><p id="temp">--</p></div>
@@ -30,7 +30,8 @@
     <div class="timestamp">อัปเดตล่าสุด: <span id="time">--</span></div>
 
     <script>
-        const FIREBASE_URL = "https://iot-000-7912d-default-rtdb.asia-southeast1.firebasedatabase.app/Lab.json";
+        // เปลี่ยนเป็น URL Firebase ของ iot-126 (ลงท้ายด้วย /iot-126/latest.json)
+        const FIREBASE_URL = "https://iot-126-default-rtdb.asia-southeast1.firebasedatabase.app/iot-126/latest.json";
 
         async function fetchData() {
             try {
