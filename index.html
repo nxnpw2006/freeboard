@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Tank & Flow Monitoring - Premium Dashboard</title>
+    <title>Smart Tank & Flow Monitoring - Ultimate Dashboard</title>
     <!-- Google Fonts & Font Awesome Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,6 +14,7 @@
         :root {
             --bg-main: #f0f4f9;
             --card-bg: rgba(255, 255, 255, 0.85);
+            --card-border: rgba(255, 255, 255, 0.9);
             --text-title: #0f172a;
             --text-body: #475569;
             --text-muted: #94a3b8;
@@ -24,6 +25,17 @@
             --accent-green: #10b981;
             --accent-amber: #f59e0b;
             --accent-purple: #8b5cf6;
+            --accent-danger: #ef4444;
+        }
+
+        /* Dark Theme Variables */
+        [data-theme="dark"] {
+            --bg-main: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.85);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-title: #f8fafc;
+            --text-body: #cbd5e1;
+            --text-muted: #64748b;
         }
 
         * {
@@ -31,11 +43,11 @@
             margin: 0;
             padding: 0;
             font-family: 'Prompt', 'Plus Jakarta Sans', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         body {
-            background: linear-gradient(135deg, #e0f2fe 0%, #f0f4f9 50%, #e0e7ff 100%);
-            background-attachment: fixed;
+            background: var(--bg-main);
             color: var(--text-title);
             padding: 30px 20px;
             min-height: 100vh;
@@ -46,15 +58,15 @@
             margin: 0 auto;
         }
 
-        /* Top Header */
+        /* Header Bar */
         header {
-            background: rgba(255, 255, 255, 0.65);
+            background: var(--card-bg);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
+            border: 1px solid var(--card-border);
             padding: 24px 32px;
             border-radius: 24px;
-            box-shadow: 0 20px 40px -15px rgba(0, 100, 200, 0.08);
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.05);
             margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
@@ -85,42 +97,71 @@
         .brand-text h1 {
             font-size: 24px;
             font-weight: 700;
-            background: linear-gradient(135deg, #0f172a 0%, #0369a1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
 
         .brand-text p {
             font-size: 13px;
             color: var(--text-body);
-            font-weight: 400;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-theme {
+            background: rgba(2, 132, 199, 0.1);
+            color: var(--accent-blue);
+        }
+
+        .btn-export {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
         }
 
         .live-status {
             background: rgba(16, 185, 129, 0.1);
             border: 1px solid rgba(16, 185, 129, 0.2);
-            color: #065f46;
-            padding: 10px 20px;
+            color: var(--accent-green);
+            padding: 8px 16px;
             border-radius: 50px;
             font-size: 13px;
-            font-weight: 500;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
         .pulse-dot {
-            width: 10px;
-            height: 10px;
+            width: 8px;
+            height: 8px;
             background-color: var(--accent-green);
             border-radius: 50%;
-            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
             animation: pulse-green 1.8s infinite;
         }
 
         @keyframes pulse-green {
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
         }
 
@@ -137,19 +178,17 @@
             background: var(--card-bg);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--card-border);
             border-radius: 22px;
             padding: 24px;
             box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04);
-            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
             position: relative;
-            overflow: hidden;
         }
 
         .card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 20px 35px -10px rgba(2, 132, 199, 0.12);
-            border-color: rgba(2, 132, 199, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 35px -10px rgba(2, 132, 199, 0.15);
         }
 
         .card-top {
@@ -175,13 +214,13 @@
             font-size: 20px;
         }
 
-        /* Theme Accents */
-        .theme-blue { background: #e0f2fe; color: var(--accent-blue); }
-        .theme-cyan { background: #ecfeff; color: var(--accent-cyan); }
-        .theme-indigo { background: #e0e7ff; color: var(--accent-indigo); }
-        .theme-purple { background: #f3e8ff; color: var(--accent-purple); }
-        .theme-green { background: #dcfce7; color: var(--accent-green); }
-        .theme-amber { background: #fef3c7; color: var(--accent-amber); }
+        /* Colors */
+        .theme-blue { background: rgba(2, 132, 199, 0.15); color: var(--accent-blue); }
+        .theme-cyan { background: rgba(6, 182, 212, 0.15); color: var(--accent-cyan); }
+        .theme-indigo { background: rgba(99, 102, 241, 0.15); color: var(--accent-indigo); }
+        .theme-purple { background: rgba(139, 92, 246, 0.15); color: var(--accent-purple); }
+        .theme-green { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
+        .theme-amber { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); }
 
         .card-val {
             display: flex;
@@ -192,7 +231,6 @@
         .value {
             font-size: 36px;
             font-weight: 700;
-            letter-spacing: -1px;
             color: var(--text-title);
         }
 
@@ -202,10 +240,9 @@
             font-weight: 500;
         }
 
-        /* Custom Modern Progress Bar */
         .progress-container {
             margin-top: 18px;
-            background: #e2e8f0;
+            background: rgba(0, 0, 0, 0.05);
             height: 8px;
             border-radius: 10px;
             overflow: hidden;
@@ -215,14 +252,32 @@
             height: 100%;
             border-radius: 10px;
             width: 0%;
-            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: width 0.8s ease;
+        }
+
+        /* Pump Control Toggle Button */
+        .pump-btn {
+            margin-top: 12px;
+            width: 100%;
+            padding: 8px;
+            border-radius: 10px;
+            border: none;
+            background: var(--accent-blue);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pump-btn:hover {
+            opacity: 0.9;
         }
 
         /* Chart Section */
         .chart-card {
             background: var(--card-bg);
             backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--card-border);
             border-radius: 24px;
             padding: 28px;
             box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04);
@@ -252,14 +307,14 @@
 
         /* AI Insight Banner */
         .insight-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
-            border: 1px solid rgba(2, 132, 199, 0.2);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
             border-radius: 22px;
             padding: 22px 28px;
             display: flex;
             align-items: center;
             gap: 20px;
-            box-shadow: 0 10px 25px -10px rgba(2, 132, 199, 0.08);
+            box-shadow: 0 10px 25px -10px rgba(0, 0, 0, 0.05);
             margin-bottom: 30px;
         }
 
@@ -267,7 +322,7 @@
             width: 52px;
             height: 52px;
             border-radius: 16px;
-            background: #e0f2fe;
+            background: rgba(2, 132, 199, 0.15);
             color: var(--accent-blue);
             display: flex;
             align-items: center;
@@ -302,6 +357,7 @@
 
         @media (max-width: 768px) {
             header { flex-direction: column; align-items: flex-start; }
+            .header-actions { width: 100%; justify-content: space-between; margin-top: 10px; }
             .value { font-size: 30px; }
             .insight-card { flex-direction: column; align-items: flex-start; }
         }
@@ -321,9 +377,18 @@
                     <p>ระบบตรวจวัดระดับน้ำและปริมาณการไหลอัจฉริยะ (iot-126)</p>
                 </div>
             </div>
-            <div class="live-status">
-                <div class="pulse-dot"></div>
-                <span id="sync-status">ระบบเชื่อมต่อ Realtime</span>
+            
+            <div class="header-actions">
+                <div class="live-status">
+                    <div class="pulse-dot"></div>
+                    <span id="sync-status">Realtime Sync</span>
+                </div>
+                <button class="btn btn-export" onclick="exportToCSV()">
+                    <i class="fa-solid fa-file-csv"></i> Export CSV
+                </button>
+                <button class="btn btn-theme" onclick="toggleTheme()">
+                    <i class="fa-solid fa-moon" id="theme-icon"></i>
+                </button>
             </div>
         </header>
 
@@ -383,16 +448,18 @@
                 <p style="font-size: 12px; color: var(--text-muted); margin-top: 14px;">เกณฑ์ปกติ 1.5 - 3.0 bar</p>
             </div>
 
-            <!-- 5. Pump Status -->
+            <!-- 5. Pump Status (With Manual Override Switch) -->
             <div class="card">
                 <div class="card-top">
                     <span class="card-title">สถานะปั๊มน้ำ</span>
                     <div class="icon-box theme-green"><i class="fa-solid fa-power-off"></i></div>
                 </div>
                 <div class="card-val">
-                    <span class="value" id="pump_status" style="font-size: 26px; color: var(--accent-green);">--</span>
+                    <span class="value" id="pump_status" style="font-size: 24px; color: var(--accent-green);">--</span>
                 </div>
-                <p style="font-size: 12px; color: var(--text-muted); margin-top: 14px;">การสั่งการจากระบบควบคุม</p>
+                <button class="pump-btn" onclick="togglePump()">
+                    <i class="fa-solid fa-toggle-on"></i> สลับสถานะปั๊มน้ำ
+                </button>
             </div>
 
             <!-- 6. Node Battery -->
@@ -447,9 +514,8 @@
         const LATEST_URL = `${BASE_URL}/latest.json`;
         const HISTORY_URL = `${BASE_URL}/history.json?orderBy="$key"&limitToLast=10`;
 
-        // Chart.js Configuration with Gradient
+        // Setup Chart
         const ctx = document.getElementById('realtimeChart').getContext('2d');
-        
         const gradientWater = ctx.createLinearGradient(0, 0, 0, 300);
         gradientWater.addColorStop(0, 'rgba(2, 132, 199, 0.35)');
         gradientWater.addColorStop(1, 'rgba(2, 132, 199, 0.0)');
@@ -468,7 +534,6 @@
                         fill: true,
                         tension: 0.4,
                         pointRadius: 4,
-                        pointBackgroundColor: '#0284c7',
                         yAxisID: 'y'
                     },
                     {
@@ -488,30 +553,15 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'top', labels: { font: { family: 'Prompt' } } }
-                },
                 scales: {
                     x: { grid: { display: false } },
-                    y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        title: { display: true, text: 'ระดับน้ำ (%)' },
-                        min: 0, max: 100
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        title: { display: true, text: 'อัตราไหล (L/min)' },
-                        grid: { drawOnChartArea: false }
-                    }
+                    y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'ระดับน้ำ (%)' }, min: 0, max: 100 },
+                    y1: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'อัตราไหล (L/min)' }, grid: { drawOnChartArea: false } }
                 }
             }
         });
 
-        // Fetch Data Functions
+        // 1. Fetch Latest Data
         async function fetchLatest() {
             try {
                 const res = await fetch(LATEST_URL);
@@ -532,7 +582,7 @@
                         document.getElementById("time").innerText = date.toLocaleString("th-TH");
                     }
 
-                    // Smart Advice
+                    // Smart Analytics Advice
                     let advice = "✅ ปริมาณน้ำและแรงดันในท่อจ่ายอยู่ในระดับปกติ";
                     if(data.level < 20) advice = "🚨 คำเตือน: ระดับน้ำในถังต่ำมาก! ระบบแนะนำให้เปิดปั๊มเติมน้ำทันที";
                     else if(data.press > 3.5) advice = "⚠️ คำเตือน: แรงดันน้ำสูงเกินมาตรฐาน โปรดตรวจสอบวาล์วจ่ายน้ำ";
@@ -541,6 +591,7 @@
             } catch(e) { console.error(e); }
         }
 
+        // 2. Fetch History Data for Chart
         async function fetchHistory() {
             try {
                 const res = await fetch(HISTORY_URL);
@@ -562,6 +613,54 @@
             } catch(e) { console.error(e); }
         }
 
+        // 3. Toggle Pump Status Control
+        async function togglePump() {
+            const currentStatus = document.getElementById("pump_status").innerText;
+            const newStatus = (currentStatus === "PUMP_ON") ? "PUMP_OFF" : "PUMP_ON";
+            try {
+                await fetch(`${BASE_URL}/latest/pump_status.json`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newStatus)
+                });
+                fetchLatest();
+            } catch(e) { alert("ไม่สามารถเปลี่ยนสถานะปั๊มน้ำได้"); }
+        }
+
+        // 4. Export History to CSV
+        function exportToCSV() {
+            fetch(`${BASE_URL}/history.json?orderBy="$key"&limitToLast=50`)
+                .then(res => res.json())
+                .then(data => {
+                    if(!data) { alert("ไม่มีข้อมูลประวัติสำหรับ Export"); return; }
+                    let csv = "Timestamp,Water_Level(%),Water_Volume(L),Flow_Rate(L/min),Pressure(bar),Battery(%)\n";
+                    Object.values(data).forEach(row => {
+                        const time = row.timestamp ? new Date(row.timestamp * 1000).toLocaleString("th-TH") : "";
+                        csv += `"${time}",${row.level||0},${row.volume||0},${row.flow||0},${row.press||0},${row.battery||0}\n`;
+                    });
+                    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `water_monitoring_${Date.now()}.csv`;
+                    a.click();
+                });
+        }
+
+        // 5. Dark / Light Mode Toggle
+        function toggleTheme() {
+            const currentTheme = document.body.getAttribute('data-theme');
+            const icon = document.getElementById('theme-icon');
+            if (currentTheme === 'dark') {
+                document.body.removeAttribute('data-theme');
+                icon.className = 'fa-solid fa-moon';
+            } else {
+                document.body.setAttribute('data-theme', 'dark');
+                icon.className = 'fa-solid fa-sun';
+            }
+        }
+
+        // Auto Sync ทุกๆ 3 วินาที
         setInterval(() => { fetchLatest(); fetchHistory(); }, 3000);
         fetchLatest(); fetchHistory();
     </script>
