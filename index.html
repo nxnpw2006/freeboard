@@ -7,18 +7,17 @@
     <!-- Google Fonts & Font Awesome Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
         :root {
             --primary: #0284c7;
             --primary-dark: #0369a1;
-            --bg: #f0fdf4;
+            --bg: #f8fafc;
             --card-bg: #ffffff;
             --text-main: #1e293b;
             --text-sub: #64748b;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
         }
 
         * {
@@ -29,7 +28,7 @@
         }
 
         body {
-            background-color: #f8fafc;
+            background-color: var(--bg);
             color: var(--text-main);
             padding: 20px;
             min-height: 100vh;
@@ -172,7 +171,7 @@
             font-weight: 500;
         }
 
-        /* Progress Bar for Water Level & Battery */
+        /* Progress Bar */
         .progress-bar-bg {
             width: 100%;
             height: 8px;
@@ -189,7 +188,6 @@
             transition: width 0.5s ease-in-out;
         }
 
-        /* Specific Theme Colors for Icons & Bars */
         .icon-blue { background: #e0f2fe; color: #0284c7; }
         .icon-cyan { background: #ecfeff; color: #0891b2; }
         .icon-indigo { background: #e0e7ff; color: #4338ca; }
@@ -197,7 +195,39 @@
         .icon-green { background: #dcfce7; color: #15803d; }
         .icon-amber { background: #fef3c7; color: #b45309; }
 
-        /* Insight Box (Creativity & Utility) */
+        /* Chart Section */
+        .chart-card {
+            background: white;
+            border-radius: 18px;
+            padding: 25px;
+            box-shadow: 0 4px 15px -2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            margin-bottom: 25px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 320px;
+            width: 100%;
+        }
+
+        /* Insight Box */
         .insight-box {
             background: white;
             border-radius: 18px;
@@ -229,17 +259,11 @@
             color: var(--text-sub);
         }
 
-        /* Footer */
         footer {
             text-align: center;
             margin-top: 25px;
             color: var(--text-sub);
             font-size: 13px;
-        }
-
-        @media (max-width: 600px) {
-            header { flex-direction: column; align-items: flex-start; }
-            .value { font-size: 26px; }
         }
     </style>
 </head>
@@ -249,7 +273,7 @@
         <!-- Header -->
         <header>
             <div class="header-title">
-                <i class="fa-solid => fa-faucet-drip"></i>
+                <i class="fa-solid fa-faucet-drip"></i>
                 <div>
                     <h1>Smart Tank & Flow Monitoring</h1>
                     <p>ระบบตรวจวัดระดับน้ำและปริมาณการไหลอัจฉริยะ (iot-126)</p>
@@ -321,12 +345,12 @@
             <div class="card">
                 <div class="card-header">
                     <span class="card-title">สถานะปั๊มน้ำ (Pump Status)</span>
-                    <div class="card-icon icon-green" id="pump-icon-bg"><i class="fa-solid fa-power-off" id="pump-icon"></i></div>
+                    <div class="card-icon icon-green"><i class="fa-solid fa-power-off"></i></div>
                 </div>
                 <div class="card-body">
                     <span class="value" id="pump_status" style="font-size: 24px;">--</span>
                 </div>
-                <p style="font-size: 12px; color: var(--text-sub); margin-top: 12px;" id="pump-desc">ระบบทำงานปกติ</p>
+                <p style="font-size: 12px; color: var(--text-sub); margin-top: 12px;">สถานะการทำงานของปั๊มเติมน้ำ</p>
             </div>
 
             <!-- 6. Sensor Battery -->
@@ -345,7 +369,20 @@
             </div>
         </div>
 
-        <!-- Smart Insight / Value Addition Section (วิเคราะห์ประโยชน์การใช้งานจริง) -->
+        <!-- Realtime Chart Section -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <div class="chart-title">
+                    <i class="fa-solid fa-chart-line" style="color: #0284c7;"></i>
+                    <span>กราฟแนวโน้มระดับน้ำและอัตราการไหลย้อนหลัง (Realtime History)</span>
+                </div>
+            </div>
+            <div class="chart-container">
+                <canvas id="historyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Smart Insight -->
         <div class="insight-box">
             <div class="insight-icon">
                 <i class="fa-solid fa-lightbulb"></i>
@@ -356,74 +393,143 @@
             </div>
         </div>
 
-        <!-- Footer Timestamp -->
+        <!-- Footer -->
         <footer>
             อัปเดตข้อมูลล่าสุดจาก ESP32 เมื่อ: <span id="time" style="font-weight: 600; color: var(--text-main);">--</span>
         </footer>
     </div>
 
-    <!-- Logic Script -->
+    <!-- Script Chart & Realtime Sync -->
     <script>
-        // URL Realtime Database ปลายทางของ iot-126
-        const FIREBASE_URL = "https://iot-000-7912d-default-rtdb.asia-southeast1.firebasedatabase.app/iot-126/latest.json";
+        const BASE_URL = "https://iot-000-7912d-default-rtdb.asia-southeast1.firebasedatabase.app/iot-126";
+        const LATEST_URL = `${BASE_URL}/latest.json`;
+        const HISTORY_URL = `${BASE_URL}/history.json?orderBy="$key"&limitToLast=10`; // ดึง 10 ข้อมูลล่าสุด
 
-        async function fetchData() {
-            try {
-                const response = await fetch(FIREBASE_URL);
-                if (!response.ok) throw new Error("Network response was not ok");
-                
-                const data = await response.json();
-
-                if (data) {
-                    // Update Values
-                    const levelVal = data.level ? data.level.toFixed(1) : 0;
-                    const volumeVal = data.volume ? data.volume.toFixed(0) : 0;
-                    const flowVal = data.flow ? data.flow.toFixed(1) : 0;
-                    const pressVal = data.press ? data.press.toFixed(2) : 0;
-                    const batVal = data.battery ? data.battery.toFixed(0) : 0;
-                    const pumpStatus = data.pump_status || "OFF";
-
-                    document.getElementById("level").innerText = levelVal;
-                    document.getElementById("volume").innerText = volumeVal;
-                    document.getElementById("flow").innerText = flowVal;
-                    document.getElementById("press").innerText = pressVal;
-                    document.getElementById("battery").innerText = batVal;
-                    document.getElementById("pump_status").innerText = pumpStatus;
-
-                    // Update Progress Bars
-                    document.getElementById("level-bar").style.width = `${Math.min(levelVal, 100)}%`;
-                    document.getElementById("battery-bar").style.width = `${Math.min(batVal, 100)}%`;
-
-                    // Smart Recommendation Logic (ความคิดสร้างสรรค์/ประโยชน์ผู้ใช้)
-                    let recText = "";
-                    if (levelVal < 20) {
-                        recText = "⚠️ ระดับน้ำในถังต่ำกว่า 20%! ระบบแนะนำให้เปิดปั๊มน้ำเติมเข้าถังเพื่อป้องกันน้ำหมด";
-                    } else if (pressVal > 3.5) {
-                        recText = "⚠️ ตรวจพบแรงดันน้ำสูงผิดปกติ อาจเกิดการอุดตันในท่อจ่ายน้ำ โปรดตรวจสอบแรงดัน";
-                    } else if (flowVal > 40) {
-                        recText = "ℹ️ อัตราการไหลของน้ำสูง มีการใช้น้ำปริมาณมากในขณะนี้";
-                    } else {
-                        recText = "✅ ระบบการจ่ายน้ำและระดับน้ำอยู่ในเกณฑ์ปกติ สมบูรณ์พร้อมใช้งาน";
+        // Setup Chart.js
+        const ctx = document.getElementById('historyChart').getContext('2d');
+        const historyChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'ระดับน้ำ (%)',
+                        data: [],
+                        borderColor: '#0284c7',
+                        backgroundColor: 'rgba(2, 132, 199, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'อัตราการไหล (L/min)',
+                        data: [],
+                        borderColor: '#4338ca',
+                        backgroundColor: 'transparent',
+                        borderDash: [5, 5],
+                        tension: 0.4,
+                        yAxisID: 'y1'
                     }
-                    document.getElementById("system-recommendation").innerText = recText;
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left',
+                        title: { display: true, text: 'ระดับน้ำ (%)' },
+                        min: 0, max: 100
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        title: { display: true, text: 'อัตราการไหล (L/min)' },
+                        grid: { drawOnChartArea: false }
+                    }
+                }
+            }
+        });
 
-                    // Update Timestamp
+        // Fetch Latest Data
+        async function fetchLatestData() {
+            try {
+                const response = await fetch(LATEST_URL);
+                const data = await response.json();
+                if (data) {
+                    document.getElementById("level").innerText = data.level ? data.level.toFixed(1) : "--";
+                    document.getElementById("volume").innerText = data.volume ? data.volume.toFixed(0) : "--";
+                    document.getElementById("flow").innerText = data.flow ? data.flow.toFixed(1) : "--";
+                    document.getElementById("press").innerText = data.press ? data.press.toFixed(2) : "--";
+                    document.getElementById("battery").innerText = data.battery ? data.battery.toFixed(0) : "--";
+                    document.getElementById("pump_status").innerText = data.pump_status || "--";
+
+                    document.getElementById("level-bar").style.width = `${Math.min(data.level || 0, 100)}%`;
+                    document.getElementById("battery-bar").style.width = `${Math.min(data.battery || 0, 100)}%`;
+
                     if (data.timestamp) {
                         const date = new Date(data.timestamp * 1000);
                         document.getElementById("time").innerText = date.toLocaleString("th-TH");
                     }
 
-                    document.getElementById("sync-status").innerText = "Realtime Syncing";
+                    // Smart Recommendation
+                    let recText = "";
+                    if (data.level < 20) {
+                        recText = "⚠️ ระดับน้ำในถังต่ำกว่า 20%! ระบบแนะนำให้เปิดปั๊มน้ำเติมเข้าถัง";
+                    } else if (data.press > 3.5) {
+                        recText = "⚠️ ตรวจพบแรงดันน้ำสูงผิดปกติ โปรดตรวจสอบท่อจ่ายน้ำ";
+                    } else {
+                        recText = "✅ ระบบการจ่ายน้ำและระดับน้ำอยู่ในเกณฑ์ปกติ สมบูรณ์พร้อมใช้งาน";
+                    }
+                    document.getElementById("system-recommendation").innerText = recText;
                 }
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                document.getElementById("sync-status").innerText = "Connection Failed";
+            } catch (err) {
+                console.error("Latest Fetch Error:", err);
             }
         }
 
-        // ดึงข้อมูลใหม่ทุกๆ 3 วินาที
-        setInterval(fetchData, 3000);
-        fetchData();
+        // Fetch History Data for Chart
+        async function fetchHistoryData() {
+            try {
+                const response = await fetch(HISTORY_URL);
+                const data = await response.json();
+                if (data) {
+                    const timeLabels = [];
+                    const levelData = [];
+                    const flowData = [];
+
+                    Object.values(data).forEach(item => {
+                        if (item.timestamp) {
+                            const timeStr = new Date(item.timestamp * 1000).toLocaleTimeString("th-TH", { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                            timeLabels.push(timeStr);
+                            levelData.push(item.level ? item.level.toFixed(1) : 0);
+                            flowData.push(item.flow ? item.flow.toFixed(1) : 0);
+                        }
+                    });
+
+                    historyChart.data.labels = timeLabels;
+                    historyChart.data.datasets[0].data = levelData;
+                    historyChart.data.datasets[1].data = flowData;
+                    historyChart.update();
+                }
+            } catch (err) {
+                console.error("History Fetch Error:", err);
+            }
+        }
+
+        // Loop Sync Every 3 Seconds
+        setInterval(() => {
+            fetchLatestData();
+            fetchHistoryData();
+        }, 3000);
+
+        fetchLatestData();
+        fetchHistoryData();
     </script>
 </body>
 </html>
